@@ -1,7 +1,8 @@
 const resultado = document.querySelector('#resultado');
 const formulario = document.querySelector('#formulario');
+const paginacionDiv = document.querySelector('#paginacion');
 
-const registroPorPagina = 30;
+const registrosPorPagina = 40;
 let totalPaginas;
 let iterador;
 
@@ -48,7 +49,7 @@ function mostrarAlerta(mensaje) {
 
 function buscarImagenes(termino){
     const key = '32008242-f8e4037a25db69a6bc86cf631';
-    const url =  `https://pixabay.com/api/?key=${key}&q=${termino}&per_page=100`;
+    const url =  `https://pixabay.com/api/?key=${key}&q=${termino}&per_page=${registrosPorPagina}`;
 
     fetch(url)
         .then(respuesta => respuesta.json())
@@ -56,6 +57,7 @@ function buscarImagenes(termino){
             totalPaginas = calcularPaginas(resultado.totalHits);
             mostrarImagenes(resultado.hits)
         })
+
 }
 
 // Generador que registra la cantidad de elementos de acuerdo a las paginas
@@ -67,11 +69,11 @@ function *crearPaginador(total){
 
 
 function calcularPaginas(total) {
-    return parseInt(Math.ceil(total/registroPorPagina));
+    return parseInt(Math.ceil(total/registrosPorPagina));
 }
 
 function mostrarImagenes(imagenes){
-    console.log(imagenes)
+    // console.log(imagenes)
 
     while(resultado.firstChild){
         resultado.removeChild(resultado.firstChild)
@@ -103,7 +105,12 @@ function mostrarImagenes(imagenes){
 
     });
 
+    // Limpiar paginador previo
+    while(paginacionDiv.firstChild){
+        paginacionDiv.removeChild(paginacionDiv.firstChild)
+    }
 
+    //Generamosel nuevo HTML
     imprimirPaginador();
 
 }
@@ -111,6 +118,20 @@ function mostrarImagenes(imagenes){
 
 function imprimirPaginador(){
     iterador = crearPaginador(totalPaginas);
+
+    while(true){
+        const {value, done} = iterador.next();
+        if(done) return;
+
+        // Caso contrario, genera un botón por cada elemento en el generado
+        const boton = document.createElement('a');
+        boton.href = '#';
+        boton.dataset.pagina = value;
+        boton.textContent = value;
+        boton.classList.add('siguiente', 'bg-yellow-400', 'px-2', 'py-1', 'mr-2', 'mx-auto', 'mb-3', 'uppercase', 'rounded', 'font-bold','justify-items-center', 'text-justify');
+
+        paginacionDiv.appendChild(boton);
+    }
 }
 
 
